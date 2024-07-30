@@ -2,9 +2,10 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.23.0"
+      version = "5.23.0"
     }
   }
+
   backend "s3" {
     bucket = "devops-recipe-app"
     key = "tf-state-setup"
@@ -14,14 +15,14 @@ terraform {
     }
 }
 
-# Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"
+
   default_tags {
     tags = {
       Environment= terraform.workspace
-      project = var.project
-      contact = var.contact
+      Project = var.project
+      Contact = var.contact
       ManageBy = "Terraform/setup"
     }
   }
