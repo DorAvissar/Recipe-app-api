@@ -178,6 +178,7 @@ resource "aws_iam_policy" "rds" {
   policy      = data.aws_iam_policy_document.rds.json
 }
 
+
 resource "aws_iam_user_policy_attachment" "rds" {
   user       = aws_iam_user.cd.name
   policy_arn = aws_iam_policy.rds.arn
