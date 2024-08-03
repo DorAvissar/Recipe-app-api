@@ -188,26 +188,3 @@ resource "aws_iam_service_linked_role" "rds" {
   aws_service_name = "rds.amazonaws.com"
   description      = "Service linked role for RDS to manage resources on behalf of the user."
 }
-# data "aws_iam_policy_document" "service_linked_rds" {
-#   statement {
-#     effect    = "Allow"
-#     actions   = ["iam:CreateServiceLinkedRole"]
-#     resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
-#     condition {
-#       test     = "StringLike"
-#       variable = "iam:AWSServiceName"
-#       values   = ["rds.amazonaws.com"]
-#     }
-#   }
-# }
-
-# resource "aws_iam_policy" "service_linked_rds" {
-#   name        = "${aws_iam_user.cd.name}-service_linked_rds"
-#   description = "Allow Amazon RDS to call AWS services on behalf of your DB instances."
-#   policy      = data.aws_iam_policy_document.service_linked_rds.json
-# }
-
-# resource "aws_iam_user_policy_attachment" "service_linked_rds" {
-#   user       = aws_iam_user.cd.name
-#   policy_arn = aws_iam_policy.service_linked_rds.arn
-# }
