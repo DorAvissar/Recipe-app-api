@@ -358,12 +358,12 @@ data "aws_iam_policy_document" "efs" {
       "elasticfilesystem:CreateMountTarget",
       "elasticfilesystem:CreateAccessPoint",
       "elasticfilesystem:CreateFileSystem",
-      "elasticfilesystem:DescribeTags",  
-      "ec2:DescribeSubnets",             
-      "ec2:DescribeNetworkInterfaces",   
-      "ec2:CreateNetworkInterface",      
-      "ec2:DescribeSecurityGroups",     
-      "ec2:DescribeVpcs",                
+      "elasticfilesystem:DescribeTags",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeVpcs",
       "elasticfilesystem:TagResource",
       "ec2:DescribeNetworkInterfaceAttribute"
     ]

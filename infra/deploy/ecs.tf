@@ -90,6 +90,11 @@ resource "aws_ecs_task_definition" "api" {
           readOnly      = false
           containerPath = "/vol/web/static"
           sourceVolume  = "static"
+        },
+        {
+          readOnly      = false
+          containerPath = "/vol/web/media"
+          sourceVolume  = "efs-media"
         }
       ],
       logConfiguration = {
@@ -124,6 +129,11 @@ resource "aws_ecs_task_definition" "api" {
           readOnly      = true
           containerPath = "/vol/static"
           sourceVolume  = "static"
+        },
+        {
+          readOnly      = true
+          containerPath = "/vol/media"
+          sourceVolume  = "efs-media"
         }
       ]
       logConfiguration = {
@@ -141,7 +151,7 @@ resource "aws_ecs_task_definition" "api" {
     name = "static"
   }
 
-volume {
+  volume {
     name = "efs-media"
     efs_volume_configuration {
       file_system_id     = aws_efs_file_system.media.id
@@ -153,7 +163,7 @@ volume {
       }
     }
   }
-  
+
   runtime_platform {
     operating_system_family = "LINUX"
     cpu_architecture        = "X86_64"
