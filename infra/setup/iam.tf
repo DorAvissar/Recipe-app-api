@@ -188,26 +188,237 @@ resource "aws_iam_service_linked_role" "rds" {
   aws_service_name = "rds.amazonaws.com"
   description      = "Service linked role for RDS to manage resources on behalf of the user."
 }
-# data "aws_iam_policy_document" "service_linked_rds" {
-#   statement {
-#     effect    = "Allow"
-#     actions   = ["iam:CreateServiceLinkedRole"]
-#     resources = ["arn:aws:iam::*:role/aws-service-role/rds.amazonaws.com/AWSServiceRoleForRDS"]
-#     condition {
-#       test     = "StringLike"
-#       variable = "iam:AWSServiceName"
-#       values   = ["rds.amazonaws.com"]
-#     }
-#   }
-# }
 
-# resource "aws_iam_policy" "service_linked_rds" {
-#   name        = "${aws_iam_user.cd.name}-service_linked_rds"
-#   description = "Allow Amazon RDS to call AWS services on behalf of your DB instances."
-#   policy      = data.aws_iam_policy_document.service_linked_rds.json
-# }
+#########################
+# Policy for ECS access #
+#########################
 
-# resource "aws_iam_user_policy_attachment" "service_linked_rds" {
-#   user       = aws_iam_user.cd.name
-#   policy_arn = aws_iam_policy.service_linked_rds.arn
-# }
+data "aws_iam_policy_document" "ecs" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "ecs:DescribeClusters",
+      "ecs:DeregisterTaskDefinition",
+      "ecs:DeleteCluster",
+      "ecs:DescribeServices",
+      "ecs:UpdateService",
+      "ecs:DeleteService",
+      "ecs:DescribeTaskDefinition",
+      "ecs:CreateService",
+      "ecs:RegisterTaskDefinition",
+      "ecs:CreateCluster",
+      "ecs:UpdateCluster",
+      "ecs:TagResource",
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "ecs" {
+  name        = "${aws_iam_user.cd.name}-ecs"
+  description = "Allow user to manage ECS resources."
+  policy      = data.aws_iam_policy_document.ecs.json
+}
+
+resource "aws_iam_user_policy_attachment" "ecs" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.ecs.arn
+}
+
+#########################
+# Policy for IAM access #
+#########################
+
+data "aws_iam_policy_document" "iam" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "iam:ListInstanceProfilesForRole",
+      "iam:ListAttachedRolePolicies",
+      "iam:DeleteRole",
+      "iam:ListPolicyVersions",
+      "iam:DeletePolicy",
+      "iam:DetachRolePolicy",
+      "iam:ListRolePolicies",
+      "iam:GetRole",
+      "iam:GetPolicyVersion",
+      "iam:GetPolicy",
+      "iam:CreateRole",
+      "iam:CreatePolicy",
+      "iam:AttachRolePolicy",
+      "iam:TagRole",
+      "iam:TagPolicy",
+      "iam:PassRole",
+      "iam:CreateServiceLinkedRole",
+      "iam:DeleteServiceLinkedRole",
+      "iam:GetServiceLinkedRoleDeletionStatus"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "iam" {
+  name        = "${aws_iam_user.cd.name}-iam"
+  description = "Allow user to manage IAM resources."
+  policy      = data.aws_iam_policy_document.iam.json
+}
+
+resource "aws_iam_user_policy_attachment" "iam" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.iam.arn
+}
+
+################################
+# Policy for CloudWatch access #
+################################
+
+data "aws_iam_policy_document" "logs" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "logs:DeleteLogGroup",
+      "logs:DescribeLogGroups",
+      "logs:CreateLogGroup",
+      "logs:TagResource",
+      "logs:ListTagsLogGroup"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "logs" {
+  name        = "${aws_iam_user.cd.name}-logs"
+  description = "Allow user to manage CloudWatch resources."
+  policy      = data.aws_iam_policy_document.logs.json
+}
+
+resource "aws_iam_user_policy_attachment" "logs" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.logs.arn
+}
+
+#########################
+# Policy for ELB access #
+#########################
+
+data "aws_iam_policy_document" "elb" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "elasticloadbalancing:DeleteLoadBalancer",
+      "elasticloadbalancing:DeleteTargetGroup",
+      "elasticloadbalancing:DeleteListener",
+      "elasticloadbalancing:DescribeListeners",
+      "elasticloadbalancing:DescribeLoadBalancerAttributes",
+      "elasticloadbalancing:DescribeTargetGroups",
+      "elasticloadbalancing:DescribeTargetGroupAttributes",
+      "elasticloadbalancing:DescribeLoadBalancers",
+      "elasticloadbalancing:CreateListener",
+      "elasticloadbalancing:SetSecurityGroups",
+      "elasticloadbalancing:ModifyLoadBalancerAttributes",
+      "elasticloadbalancing:CreateLoadBalancer",
+      "elasticloadbalancing:ModifyTargetGroupAttributes",
+      "elasticloadbalancing:CreateTargetGroup",
+      "elasticloadbalancing:AddTags",
+      "elasticloadbalancing:DescribeTags",
+      "ec2:DescribeAccountAttributes",
+      "elasticloadbalancing:ModifyListener"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "elb" {
+  name        = "${aws_iam_user.cd.name}-elb"
+  description = "Allow user to manage ELB resources."
+  policy      = data.aws_iam_policy_document.elb.json
+}
+
+resource "aws_iam_user_policy_attachment" "elb" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.elb.arn
+}
+
+#########################
+# Policy for EFS access #
+#########################
+
+data "aws_iam_policy_document" "efs" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "elasticfilesystem:DescribeFileSystems",
+      "elasticfilesystem:DescribeAccessPoints",
+      "elasticfilesystem:DeleteFileSystem",
+      "elasticfilesystem:DeleteAccessPoint",
+      "elasticfilesystem:DescribeMountTargets",
+      "elasticfilesystem:DeleteMountTarget",
+      "elasticfilesystem:DescribeMountTargetSecurityGroups",
+      "elasticfilesystem:DescribeLifecycleConfiguration",
+      "elasticfilesystem:CreateMountTarget",
+      "elasticfilesystem:CreateAccessPoint",
+      "elasticfilesystem:CreateFileSystem",
+      "elasticfilesystem:DescribeTags",
+      "ec2:DescribeSubnets",
+      "ec2:DescribeNetworkInterfaces",
+      "ec2:CreateNetworkInterface",
+      "ec2:DescribeSecurityGroups",
+      "ec2:DescribeVpcs",
+      "elasticfilesystem:TagResource",
+      "ec2:DescribeNetworkInterfaceAttribute"
+    ]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_policy" "efs" {
+  name        = "${aws_iam_user.cd.name}-efs"
+  description = "Allow user to manage EFS resources."
+  policy      = data.aws_iam_policy_document.efs.json
+}
+
+resource "aws_iam_user_policy_attachment" "efs" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.efs.arn
+}
+
+#############################
+# Policy for Route53 access #
+#############################
+
+
+data "aws_iam_policy_document" "route53" {
+  statement {
+    effect = "Allow"
+    actions = [
+      "route53:ListHostedZones",
+      "route53:ListHostedZones",
+      "route53:ChangeTagsForResource",
+      "route53:GetHostedZone",
+      "route53:ListTagsForResource",
+      "route53:ChangeResourceRecordSets",
+      "route53:GetChange",
+      "route53:ListResourceRecordSets",
+      "acm:RequestCertificate",
+      "acm:AddTagsToCertificate",
+      "acm:DescribeCertificate",
+      "acm:ListTagsForCertificate",
+      "acm:DeleteCertificate",
+      "acm:CreateCertificate"
+    ]
+    resources = ["*"]
+  }
+}
+
+
+resource "aws_iam_policy" "route53" {
+  name        = "${aws_iam_user.cd.name}-route53"
+  description = "Allow user to manage Route53 resources."
+  policy      = data.aws_iam_policy_document.route53.json
+}
+
+
+resource "aws_iam_user_policy_attachment" "route53" {
+  user       = aws_iam_user.cd.name
+  policy_arn = aws_iam_policy.route53.arn
+}
