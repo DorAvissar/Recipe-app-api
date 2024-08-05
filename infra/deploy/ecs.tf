@@ -213,16 +213,21 @@ resource "aws_security_group" "ecs_service" {
     ]
   }
 }
-
-# check if AWSServiceRoleForECS already exists
-data "aws_iam_role" "service_role_for_ecs" {
-  name = "AWSServiceRoleForECS"
+# Check if the service-linked role exists
+data "aws_iam_roles" "existing_roles" {
+  path_prefix = "/aws-service-role/ecs.amazonaws.com/"
 }
 
 resource "aws_iam_service_linked_role" "ecs" {
+  count = length(data.aws_iam_roles.existing_roles.roles) == 0 ? 1 : 0
   aws_service_name = "ecs.amazonaws.com"
-  count            = data.aws_iam_role.service_role_for_ecs.name != "" ? 0 : 1
+}
 
+# Reference the service-linked role
+data "aws_iam_role" "service_role_for_ecs" {
+  depends_on = [aws_iam_service_linked_role.ecs]
+  for_each   = { for role in data.aws_iam_roles.existing_roles.roles : role.name => role if role.name == "AWSServiceRoleForECS" }
+  name       = each.key
 }
 
 resource "aws_ecs_service" "api" {
