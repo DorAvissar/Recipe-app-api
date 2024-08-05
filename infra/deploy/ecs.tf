@@ -214,21 +214,22 @@ resource "aws_security_group" "ecs_service" {
   }
 }
 # Check if the service-linked role exists
-data "aws_iam_roles" "existing_roles" {
-  path_prefix = "/aws-service-role/ecs.amazonaws.com/"
+data "aws_iam_role" "service_role_for_ecs" {
+  name = "AWSServiceRoleForECS"
 }
 
+# Conditional creation of the service-linked role
 resource "aws_iam_service_linked_role" "ecs" {
-  count = length(data.aws_iam_roles.existing_roles.roles) == 0 ? 1 : 0
+  count            = (try(data.aws_iam_role.service_role_for_ecs.name, "") == "" ? 1 : 0)
   aws_service_name = "ecs.amazonaws.com"
 }
 
 # Reference the service-linked role
-data "aws_iam_role" "service_role_for_ecs" {
+data "aws_iam_role" "service_role_for_ecs_final" {
   depends_on = [aws_iam_service_linked_role.ecs]
-  for_each   = { for role in data.aws_iam_roles.existing_roles.roles : role.name => role if role.name == "AWSServiceRoleForECS" }
-  name       = each.key
+  name       = "AWSServiceRoleForECS"
 }
+
 
 resource "aws_ecs_service" "api" {
   name                   = "${local.prefix}-api"
