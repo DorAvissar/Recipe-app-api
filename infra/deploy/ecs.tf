@@ -216,6 +216,7 @@ resource "aws_security_group" "ecs_service" {
 
 resource "aws_iam_service_linked_role" "ecs" {
   aws_service_name = "ecs.amazonaws.com"
+  count            = terraform.workspace == "prod" ? 0 : 1
 }
 
 resource "aws_ecs_service" "api" {
